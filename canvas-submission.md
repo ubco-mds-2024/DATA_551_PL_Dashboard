@@ -1,1 +1,1 @@
-# add link to Milestone 1 release here once done
+[https://github.com/ubco-mds-2024/DATA_551_PL_Dashboard/releases/tag/milestone-1](https://github.com/ubco-mds-2024/DATA_551_PL_Dashboard/releases/tag/milestone-1)

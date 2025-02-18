@@ -1,5 +1,6 @@
 import dash
 from dash import html, dcc
+import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output
 import altair as alt
 import pandas as pd
@@ -29,9 +30,32 @@ print("%i rows dropped." % (rows_total - len(df)))
 # set up app and layout / frontend
 # ---------------------------------
 
-app = dash.Dash(__name__)
+app = dash.Dash(external_stylesheets = [dbc.themes.BOOTSTRAP])
 
-app.layout = html.Div("Hello world!")
+app.layout = dbc.Container([
+    html.H1("Premier League Dashboard"),
+    dbc.Row([
+        html.H2("Filters"),
+        dbc.Col([
+            html.H2("Checklist of teams here")
+        ], md = 2),
+                dbc.Col([
+            html.H2("Checklist of seasons here")
+        ], md = 2),
+        dbc.Col([
+            html.H2("Per team chart here")
+        ], md = 4),
+        dbc.Col([
+            html.H2("Per season chart here")
+        ], md = 4)
+    ], className = "h-50"),
+    dbc.Row([ 
+        html.H2("Season by season timeline here")
+    ], className = "h-25"),
+    dbc.Row([ 
+        html.H2("Match by match timeline here")
+    ], className = "h-25")
+], style={"height": "90vh"})
 
 
 # set up callbacks / backend

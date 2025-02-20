@@ -75,7 +75,7 @@ team_codes = {
     "Blackpool": "BLA"
 }
 
-stats = ["Goals"]
+stats = ["Goals", "Wins"]
 
 # set up app and layout / frontend
 # ---------------------------------
@@ -126,11 +126,23 @@ app.layout = dbc.Container([
 
 @app.callback(
     Output("pie1", "srcDoc"),
+    Output("pie2", "srcDoc"),
+    Output("timeline1", "srcDoc"),
+    Output("timeline2", "srcDoc"),
     Input("teams-list", "value"),
-    Input("seasons-list", "value")
+    Input("seasons-list", "value"),
+    Input("stat-list", "value")
 )
-def plot_altair(xcol, ycol):
-    pass
+def plot_altair(teamslist, seasonslist, statlist):
+
+    filtered_df = df[df["Season"].isin(seasonslist)]
+    filtered_df = filtered_df[filtered_df["HomeTeam"].isin(teamslist) | filtered_df["AwayTeam"].isin(teamslist)]
+
+    if statlist == "Goals":
+        pie1 = alt.Chart(filtered_df).mark_arc().encode(
+        )
+
+    return pie1.to_html()
 
 if __name__ == "__main__":
     app.run_server(debug = True)

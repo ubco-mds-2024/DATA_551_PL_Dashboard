@@ -142,7 +142,16 @@ def plot_altair(teamslist, seasonslist, statlist):
         pie1 = alt.Chart(filtered_df).mark_arc().encode(
         )
 
-    return pie1.to_html()
+        pie2 = alt.Chart(filtered_df).mark_arc().encode(
+        )
+
+        timeline1 = alt.Chart(filtered_df).mark_line().encode(
+        )
+
+        timeline2 = alt.Chart(filtered_df).mark_line().encode(
+        )
+
+    return pie1.to_html(), pie2.to_html(), timeline1.to_html(), timeline2.to_html()
 
 if __name__ == "__main__":
     app.run_server(debug = True)

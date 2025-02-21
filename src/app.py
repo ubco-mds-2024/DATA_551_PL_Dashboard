@@ -75,12 +75,61 @@ team_codes = {
     "Blackpool": "BLA"
 }
 
+team_colours = { # finish these!
+    "Burnley": "black",
+    "Huddersfield": "black",
+    "Ipswich": "black",
+    "Portsmouth": "black",
+    "Wigan": "black",
+    "Nott'm Forest": "black",
+    "Stoke": "black",
+    "Liverpool": "darkred",
+    "Luton": "black",
+    "Man City": "black",
+    "Sunderland": "black",
+    "Leeds": "black",
+    "Swansea": "black",
+    "Chelsea": "black",
+    "QPR": "black",
+    "Bournemouth": "black",
+    "Watford": "black",
+    "Derby": "black",
+    "Charlton": "black",
+    "Bolton": "black",
+    "Reading": "black",
+    "Brighton": "black",
+    "Newcastle": "black",
+    "Fulham": "black",
+    "West Brom": "black",
+    "Middlesborough": "black",
+    "Norwich": "black",
+    "Birmingham": "black",
+    "Blackburn": "black",
+    "Everton": "black",
+    "Tottenham": "navy",
+    "Hull": "black",
+    "Cardiff": "black",
+    "Aston Villa": "black",
+    "Man United": "black",
+    "Crystal Palace": "black",
+    "Arsenal": "red",
+    "Sheffield United": "black",
+    "Southampton": "black",
+    "Wolves": "black",
+    "West Ham": "black",
+    "Leicester": "black",
+    "Brentford": "black",
+    "Blackpool": "black"
+}
+
 stats = ["Goals", "Wins"]
 
 # set up app and layout / frontend
 # ---------------------------------
 
 app = dash.Dash(external_stylesheets = [dbc.themes.BOOTSTRAP])
+
+colmaxht = "90%"
 
 app.layout = dbc.Container([
     html.H1("Premier League Dashboard"),
@@ -93,40 +142,53 @@ app.layout = dbc.Container([
             dbc.Col([
                 dcc.Checklist(
                     id = "teams-list",
-                    options = [{"label": team, "value": team_codes[team]} for team in sorted(team_codes)],
-                    style = {"overflowY": "scroll", "max-height": "30%", "max-width": "100%"}
+                    options = [{"label": team, "value": team} for team in sorted(team_codes)],
+                    style = {"overflowY": "scroll", "max-height": "100%", "max-width": "100%"},
+                    value = ["Arsenal", "Chelsea", "Liverpool", "Man United", "Tottenham", "Man City"]
                 )
-            ], md = 2),
-                    dbc.Col([
+            ], md = 2, style = {"max-height": colmaxht}),
+            dbc.Col([
                 dcc.Checklist(
                     id = "seasons-list",
                     options = [{"label": season, "value": season} for season in sorted(list(set(df["Season"])))],
-                    style = {"overflowY": "scroll", "max-height": "30%", "max-width": "100%"}
+                    style = {"overflowY": "scroll", "max-height": "100%", "max-width": "100%"},
+                    value = sorted(list(set(df["Season"])))
                 )
-            ], md = 2),
+            ], md = 2, style = {"max-height": colmaxht}),
         dbc.Col([
-            html.H2("Per team chart here")
-        ], md = 4),
+            html.Iframe(
+                id = "pie1",
+                style = {}
+            )
+        ], md = 4, style = {"max-height": colmaxht}),
         dbc.Col([
-            html.H2("Per season chart here")
-        ], md = 4)
-    ], className = "h-50"),
-
+            html.Iframe(
+                id = "pie2",
+                style = {}
+            )
+        ], md = 4, style = {"max-height": colmaxht})
+    ], style = {"height": "45%"}),
     dbc.Row([ 
-        html.H2("Season by season timeline here")
-    ], className = "h-25"),
+        html.Iframe(
+            id = "timeline1",
+            style = {}
+        )
+    ], style = {"height": "25%"}),
     dbc.Row([ 
-        html.H2("Match by match timeline here")
-    ], className = "h-25")
-], style={"height": "90vh"})
+        html.Iframe(
+            id = "timeline2",
+            style = {}
+        )
+    ], style = {"height": "25%"})
+], style={"height": "95vh"})
 
 
 # set up callbacks / backend
 # ---------------------------------
 
 @app.callback(
-    Output("pie1", "srcDoc"),
-    Output("pie2", "srcDoc"),
+    # Output("pie1", "srcDoc"),
+    # Output("pie2", "srcDoc"),
     Output("timeline1", "srcDoc"),
     Output("timeline2", "srcDoc"),
     Input("teams-list", "value"),
@@ -139,19 +201,48 @@ def plot_altair(teamslist, seasonslist, statlist):
     filtered_df = filtered_df[filtered_df["HomeTeam"].isin(teamslist) | filtered_df["AwayTeam"].isin(teamslist)]
 
     if statlist == "Goals":
-        pie1 = alt.Chart(filtered_df).mark_arc().encode(
-        )
 
-        pie2 = alt.Chart(filtered_df).mark_arc().encode(
-        )
+        t1s = []
+        t2s = []
 
-        timeline1 = alt.Chart(filtered_df).mark_line().encode(
-        )
+        for team in teamslist:
+            filtered_df = filtered_df.copy()
+            filtered_df["Team_Goals"] = filtered_df.apply(
+            lambda row: row["FTAG"] if row["AwayTeam"] == team else 
+                        (row["FTHG"] if row["HomeTeam"] == team else 0), axis = 1)
+        
+            pie1 = alt.Chart(filtered_df).mark_arc().encode(
+            )
 
-        timeline2 = alt.Chart(filtered_df).mark_line().encode(
-        )
+            pie2 = alt.Chart(filtered_df).mark_arc().encode(
+            )
 
-    return pie1.to_html(), pie2.to_html(), timeline1.to_html(), timeline2.to_html()
+            t1 = alt.Chart(filtered_df).mark_line(
+                color = team_colours[team], opacity = 0.5).encode(
+                x = alt.X("Season"),
+                y = alt.Y("sum(Team_Goals):Q", title = "Total")
+            ).properties(
+                height = 110, width = len(seasonslist) * 120
+            )
+
+            t1s.append(t1)
+
+            t2 = alt.Chart(filtered_df).mark_circle(
+                color = team_colours[team], opacity = 0.5).encode(
+                x = alt.X("Date:T"),
+                y = alt.Y("sum(Team_Goals):Q", title = "Goals scored"),
+                xOffset = "jitter:Q"
+            ).properties(
+                height = 110, width = len(seasonslist) * 1000
+            )
+
+            t2s.append(t2)
+
+    timeline1 = alt.layer(*t1s)
+    timeline2 = alt.layer(*t2s)
+
+    # return pie1.to_html(), pie2.to_html()
+    return timeline1.to_html(), timeline2.to_html()
 
 if __name__ == "__main__":
     app.run_server(debug = True)

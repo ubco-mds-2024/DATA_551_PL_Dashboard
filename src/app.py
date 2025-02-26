@@ -2,7 +2,7 @@ import dash
 from dash import html, dcc
 import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output
-import altair as alt
+import plotly.express as px
 import pandas as pd
 import os
 
@@ -76,50 +76,50 @@ team_codes = {
 }
 
 team_colours = { # finish these!
-    "Burnley": "black",
-    "Huddersfield": "black",
-    "Ipswich": "black",
-    "Portsmouth": "black",
-    "Wigan": "black",
-    "Nott'm Forest": "black",
-    "Stoke": "black",
-    "Liverpool": "darkred",
-    "Luton": "black",
-    "Man City": "black",
+    "Burnley": "#6C1D45",
+    "Huddersfield": "#0E63AD",
+    "Ipswich": "#3a64a3",
+    "Portsmouth": "#001489",
+    "Wigan": "#0000ff",
+    "Nott'm Forest": "#dd0000",
+    "Stoke": "#e03a3e",
+    "Liverpool": "#c8102E",
+    "Luton": "#F78F1E",
+    "Man City": "#6CABDD",
     "Sunderland": "black",
-    "Leeds": "black",
+    "Leeds": "#FFCD00",
     "Swansea": "black",
-    "Chelsea": "black",
-    "QPR": "black",
-    "Bournemouth": "black",
-    "Watford": "black",
+    "Chelsea": "#034694",
+    "QPR": "#1D5BA4",
+    "Bournemouth": "#B50E12",
+    "Watford": "#FBEE23",
     "Derby": "black",
     "Charlton": "black",
-    "Bolton": "black",
-    "Reading": "black",
-    "Brighton": "black",
+    "Bolton": "#263c7e",
+    "Reading": "#004494",
+    "Brighton": "#0057B8",
     "Newcastle": "black",
     "Fulham": "black",
-    "West Brom": "black",
-    "Middlesborough": "black",
-    "Norwich": "black",
-    "Birmingham": "black",
-    "Blackburn": "black",
-    "Everton": "black",
-    "Tottenham": "navy",
-    "Hull": "black",
-    "Cardiff": "black",
-    "Aston Villa": "black",
-    "Man United": "black",
-    "Crystal Palace": "black",
-    "Arsenal": "red",
-    "Sheffield United": "black",
-    "Southampton": "black",
-    "Wolves": "black",
-    "West Ham": "black",
-    "Leicester": "black",
-    "Brentford": "black",
-    "Blackpool": "black"
+    "West Brom": "#122F67",
+    "Middlesborough": "#004494",
+    "Norwich": "#00A650",
+    "Birmingham": "#0000FF",
+    "Blackburn": "#009EE0",
+    "Everton": "#003399",
+    "Tottenham": "#132257",
+    "Hull": "#F18A01",
+    "Cardiff": "#0070B5",
+    "Aston Villa": "#670e36",
+    "Man United": "#DA291C",
+    "Crystal Palace": "#1B458F",
+    "Arsenal": "#EF0107",
+    "Sheffield United": "#EE2737",
+    "Southampton": "#d71920",
+    "Wolves": "#FDB913",
+    "West Ham": "#7A263A",
+    "Leicester": "#003090",
+    "Brentford": "#D20000",
+    "Blackpool": "#F68712"
 }
 
 stats = ["Goals", "Wins"]
@@ -129,7 +129,7 @@ stats = ["Goals", "Wins"]
 
 app = dash.Dash(external_stylesheets = [dbc.themes.BOOTSTRAP])
 
-colmaxht = "90%"
+colmaxht = "85%"
 
 app.layout = dbc.Container([
     html.H1("Premier League Dashboard"),
@@ -152,97 +152,179 @@ app.layout = dbc.Container([
                     id = "seasons-list",
                     options = [{"label": season, "value": season} for season in sorted(list(set(df["Season"])))],
                     style = {"overflowY": "scroll", "max-height": "100%", "max-width": "100%"},
-                    value = sorted(list(set(df["Season"])))
+                    # value = sorted(list(set(df["Season"])))
+                    value = list(set(df["Season"]))
                 )
             ], md = 2, style = {"max-height": colmaxht}),
         dbc.Col([
-            html.Iframe(
+            dcc.Graph(
                 id = "pie1",
-                style = {}
+                style = {"height": "125%"}
             )
         ], md = 4, style = {"max-height": colmaxht}),
         dbc.Col([
-            html.Iframe(
+            dcc.Graph(
                 id = "pie2",
-                style = {}
+                style = {"height": "125%"}
             )
         ], md = 4, style = {"max-height": colmaxht})
     ], style = {"height": "45%"}),
     dbc.Row([ 
-        html.Iframe(
+        dcc.Graph(
             id = "timeline1",
             style = {}
         )
     ], style = {"height": "25%"}),
     dbc.Row([ 
-        html.Iframe(
+        dcc.Graph(
             id = "timeline2",
             style = {}
         )
     ], style = {"height": "25%"})
-], style={"height": "95vh"})
+], style={"height": "85vh"})
 
 
 # set up callbacks / backend
 # ---------------------------------
 
 @app.callback(
-    # Output("pie1", "srcDoc"),
-    # Output("pie2", "srcDoc"),
-    Output("timeline1", "srcDoc"),
-    Output("timeline2", "srcDoc"),
+    Output("pie1", "figure"),
+    Output("pie2", "figure"),
+    Output("timeline1", "figure"),
+    Output("timeline2", "figure"),
     Input("teams-list", "value"),
     Input("seasons-list", "value"),
     Input("stat-list", "value")
 )
-def plot_altair(teamslist, seasonslist, statlist):
-
+def plot_plotly(teamslist, seasonslist, statlist):
+    # Filter data
     filtered_df = df[df["Season"].isin(seasonslist)]
     filtered_df = filtered_df[filtered_df["HomeTeam"].isin(teamslist) | filtered_df["AwayTeam"].isin(teamslist)]
 
     if statlist == "Goals":
+        # Calculate goals per team
+        filtered_df = filtered_df.copy()
+        filtered_df["Team"] = filtered_df.apply(
+            lambda row: row["HomeTeam"] if row["HomeTeam"] in teamslist else row["AwayTeam"], axis=1
+        )
+        filtered_df["Team_Goals"] = filtered_df.apply(
+            lambda row: row["FTHG"] if row["HomeTeam"] in teamslist else row["FTAG"], axis=1
+        )
 
-        t1s = []
-        t2s = []
+        # Aggregate data for charts
+        goals_by_team = filtered_df.groupby("Team")["Team_Goals"].sum().reset_index()
+        goals_by_season = filtered_df.groupby(["Season", "Team"])["Team_Goals"].sum().reset_index()
+        goals_by_date = filtered_df.groupby(["Date", "Team"])["Team_Goals"].sum().reset_index()
 
-        for team in teamslist:
-            filtered_df = filtered_df.copy()
-            filtered_df["Team_Goals"] = filtered_df.apply(
-            lambda row: row["FTAG"] if row["AwayTeam"] == team else 
-                        (row["FTHG"] if row["HomeTeam"] == team else 0), axis = 1)
-        
-            pie1 = alt.Chart(filtered_df).mark_arc().encode(
-            )
+        # Pie Chart 1: Total goals by team
+        pie1 = px.pie(
+            goals_by_team,
+            values="Team_Goals",
+            names="Team",
+            title="Total Goals by Team",
+            color="Team",
+            color_discrete_map=team_colours
+        )
 
-            pie2 = alt.Chart(filtered_df).mark_arc().encode(
-            )
+        # Pie Chart 2: Another view (e.g., average goals per match, placeholder)
+        # update this one to be total goals grouped by season (still filtered by teams and seasons)
+        avg_goals = filtered_df.groupby("Team")["Team_Goals"].mean().reset_index()
+        pie2 = px.pie(
+            avg_goals,
+            values="Team_Goals",
+            names="Team",
+            title="Average Goals per Match by Team",
+            color="Team",
+            color_discrete_map=team_colours
+        )
 
-            t1 = alt.Chart(filtered_df).mark_line(
-                color = team_colours[team], opacity = 0.5).encode(
-                x = alt.X("Season"),
-                y = alt.Y("sum(Team_Goals):Q", title = "Total")
-            ).properties(
-                height = 110, width = len(seasonslist) * 120
-            )
+        # update the timelines below to have:
+        # better x-axis labels
+        # fixed scaling per unit time (scrolls left and right)
 
-            t1s.append(t1)
+        # Timeline 1: Line chart of goals per season
+        timeline1 = px.line(
+            goals_by_season,
+            x="Season",
+            y="Team_Goals",
+            color="Team",
+            title="Goals per Season",
+            color_discrete_map=team_colours,
+            height=300
+        )
+        timeline1.update_traces(opacity=0.5)
 
-            t2 = alt.Chart(filtered_df).mark_circle(
-                color = team_colours[team], opacity = 0.5).encode(
-                x = alt.X("Date:T"),
-                y = alt.Y("sum(Team_Goals):Q", title = "Goals scored"),
-                xOffset = "jitter:Q"
-            ).properties(
-                height = 110, width = len(seasonslist) * 1000
-            )
+        # Timeline 2: Scatter chart of goals over time
+        timeline2 = px.scatter(
+            goals_by_date,
+            x="Date",
+            y="Team_Goals",
+            color="Team",
+            title="Goals Over Time",
+            color_discrete_map=team_colours,
+            height=300
+        )
+        timeline2.update_traces(opacity=0.5, mode="markers")
 
-            t2s.append(t2)
+    elif statlist == "Wins":
+        # Calculate wins per team
+        filtered_df = filtered_df.copy()
+        filtered_df["Winner"] = filtered_df.apply(
+            lambda row: row["HomeTeam"] if row["FTHG"] > row["FTAG"] else 
+                       (row["AwayTeam"] if row["FTAG"] > row["FTHG"] else "Draw"), axis=1
+        )
+        wins_by_team = filtered_df[filtered_df["Winner"].isin(teamslist)].groupby("Winner").size().reset_index(name="Wins")
+        wins_by_season = filtered_df[filtered_df["Winner"].isin(teamslist)].groupby(["Season", "Winner"]).size().reset_index(name="Wins")
+        wins_by_date = filtered_df[filtered_df["Winner"].isin(teamslist)].groupby(["Date", "Winner"]).size().reset_index(name="Wins")
 
-    timeline1 = alt.layer(*t1s)
-    timeline2 = alt.layer(*t2s)
+        # Pie Chart 1: Total wins by team
+        pie1 = px.pie(
+            wins_by_team,
+            values="Wins",
+            names="Winner",
+            title="Total Wins by Team",
+            color="Winner",
+            color_discrete_map=team_colours
+        )
 
-    # return pie1.to_html(), pie2.to_html()
-    return timeline1.to_html(), timeline2.to_html()
+        # Pie Chart 2: Placeholder (e.g., win percentage)
+        total_matches = filtered_df.groupby("Winner").size().reset_index(name="Matches")
+        win_pct = wins_by_team.merge(total_matches, on="Winner")
+        win_pct["Win_Percentage"] = (win_pct["Wins"] / win_pct["Matches"]) * 100
+        pie2 = px.pie(
+            win_pct,
+            values="Win_Percentage",
+            names="Winner",
+            title="Win Percentage by Team",
+            color="Winner",
+            color_discrete_map=team_colours
+        )
+
+        # Timeline 1: Line chart of wins per season
+        timeline1 = px.line(
+            wins_by_season,
+            x="Season",
+            y="Wins",
+            color="Winner",
+            title="Wins per Season",
+            color_discrete_map=team_colours,
+            height=300
+        )
+        timeline1.update_traces(opacity=0.5)
+
+        # Timeline 2: Scatter chart of wins over time
+        timeline2 = px.scatter(
+            wins_by_date,
+            x="Date",
+            y="Wins",
+            color="Winner",
+            title="Wins Over Time",
+            color_discrete_map=team_colours,
+            height=300
+        )
+        timeline2.update_traces(opacity=0.5, mode="markers")
+
+    return pie1, pie2, timeline1, timeline2
 
 if __name__ == "__main__":
-    app.run_server(debug = True)
+   app.run_server(debug=True)

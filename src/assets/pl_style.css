@@ -1,0 +1,53 @@
+@font-face {
+    font-family: "RHSIV";
+    src: url("/assets/RabbidHighwaySignIv.otf") format("opentype");
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "RHSIV";
+    src: url("/assets/RabbidHighwaySignIvObl.otf") format("opentype");
+    font-weight: normal;
+    font-style: oblique;
+}
+
+@font-face {
+    font-family: "RHSIVBold";
+    src: url("/assets/RabbidHighwaySignIvBold.otf") format("opentype");
+    font-weight: bold;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "RHSIVBlack";
+    src: url("/assets/RabbidHighwaySignIvBlack.otf") format("opentype");
+    font-weight: normal;
+    font-style: bolder;
+}
+
+h1 {
+    font-family: "RHSIVBlack", sans-serif;
+    color: #37003c;
+    padding-top: 10px;
+}
+
+body {
+    font-family: "RHSIV", sans-serif;
+    color: #37003c;
+}
+
+.list-container {
+    overflow-y: scroll;
+    max-height: 100%;
+    max-width: 100%;
+}
+
+.list-container::-webkit-scrollbar {
+    width: 7px;
+}
+
+.list-container::-webkit-scrollbar-thumb {
+    background: #37003c;
+    border-radius: 4px;
+}

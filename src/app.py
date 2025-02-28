@@ -127,7 +127,7 @@ stats = ["Goals", "Wins"]
 # set up app and layout / frontend
 # ---------------------------------
 
-app = dash.Dash(external_stylesheets = [dbc.themes.BOOTSTRAP])
+app = dash.Dash(external_stylesheets = [dbc.themes.BOOTSTRAP, "/assets/pl_style.css"])
 
 colmaxht = "85%"
 
@@ -143,17 +143,17 @@ app.layout = dbc.Container([
                 dcc.Checklist(
                     id = "teams-list",
                     options = [{"label": team, "value": team} for team in sorted(team_codes)],
-                    style = {"overflowY": "scroll", "max-height": "100%", "max-width": "100%"},
-                    value = ["Arsenal", "Chelsea", "Liverpool", "Man United", "Tottenham", "Man City"]
+                    value = ["Arsenal", "Chelsea", "Liverpool", "Man United", "Tottenham", "Man City"],
+                    className = "list-container"
                 )
             ], md = 2, style = {"max-height": colmaxht}),
             dbc.Col([
                 dcc.Checklist(
                     id = "seasons-list",
                     options = [{"label": season, "value": season} for season in sorted(list(set(df["Season"])))],
-                    style = {"overflowY": "scroll", "max-height": "100%", "max-width": "100%"},
                     # value = sorted(list(set(df["Season"])))
-                    value = list(set(df["Season"]))
+                    value = list(set(df["Season"])),
+                    className = "list-container"
                 )
             ], md = 2, style = {"max-height": colmaxht}),
         dbc.Col([

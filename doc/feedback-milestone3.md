@@ -12,7 +12,7 @@
 
 #### Response:
 
-Response here
+we do appreciate the feedback on improving the visualization. we will work on increasing the size of the pie charts to enhance readability and ensure that the data is presented more clearly. A larger pie chart should make it easier for viewers to distinguish between different segments and interpret the information at a glance. we will make this adjustment and review the overall layout to ensure that the change integrates well with the rest of the dashboard.
 
 ---
 
@@ -22,7 +22,7 @@ Response here
 
 #### Response:
 
-Response here
+we are glad to hear that you found the title font to be a great choice for the type of data being presented. Consistency in design is definitely important for creating a polished and visually cohesive dashboard. we will work on extending this font style throughout the entire dashboard to maintain a uniform look and enhance the overall user experience. Ensuring a consistent font style across all elements should help improve readability and make the presentation feel more professional and engaging.
 
 ---
 
@@ -52,7 +52,7 @@ Response here
 
 #### Response:
 
-Response here
+we appreciate your suggestion regarding the first line chart and understand the importance of making trends as clear and easy to interpret as possible. To improve visibility, we will adjust the height of the chart, allowing for better spacing and making it easier to distinguish patterns over time. This change should help ensure that key trends stand out more effectively, enhancing the overall readability and user experience. Additionally, we will review the surrounding layout to ensure the adjustment integrates seamlessly with the rest of the dashboard.
 
 ---
 

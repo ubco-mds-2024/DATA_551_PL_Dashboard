@@ -159,18 +159,18 @@ app.layout = dbc.Container([
         dbc.Col([
             dcc.Graph(
                 id = "pie1",
-                style = {"height": "125%"},
+                style = {"height": "100%"},
                 className = "pie-container"
             )
         ], md = 4, style = {"max-height": colmaxht}),
         dbc.Col([
             dcc.Graph(
                 id = "pie2",
-                style = {"height": "125%"},
+                style = {"height": "105%"},
                 className = "pie-container"
             )
         ], md = 4, style = {"max-height": colmaxht})
-    ], style = {"height": "40%"}),
+    ], style = {"height": "45%"}),
     dbc.Row([ 
         dcc.Graph(
             id = "timeline1",
@@ -182,7 +182,7 @@ app.layout = dbc.Container([
             id = "timeline2",
             style = {}
         )
-    ], style = {"height": "30%"})
+    ], style = {"height": "28%"})
 ], style={"height": "85vh"})
 
 
@@ -348,7 +348,8 @@ def plot_plotly(teamslist, seasonslist, statlist):
         chart.update_layout(
             font_family = "RHSIV",
             font_color = "#37003c",
-            title_font_family = "RHSIVBold"
+            title_font_family = "RHSIVBold",
+            margin=dict(t=40, b=40, l=0, r=0)
         )
 
     return pie1, pie2, timeline1, timeline2

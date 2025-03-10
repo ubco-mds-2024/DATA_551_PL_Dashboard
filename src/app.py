@@ -5,6 +5,7 @@ from dash.dependencies import Input, Output
 import plotly.express as px
 import pandas as pd
 import os
+import datetime as dt
 
 # read in, import, combine data
 # ---------------------------------
@@ -255,7 +256,7 @@ def plot_plotly(teamslist, seasonslist, statlist):
             color_discrete_map=team_colours,
             height=300
         )
-        timeline1.update_traces(opacity=0.5)
+        timeline1.update_traces(opacity=0.8)
 
         #Adding scrolling here to line chart
         timeline1.update_layout(
@@ -275,7 +276,7 @@ def plot_plotly(teamslist, seasonslist, statlist):
             color_discrete_map=team_colours,
             height=300
         )
-        timeline2.update_traces(opacity=0.5, mode="markers")
+        timeline2.update_traces(opacity=0.8, mode="markers")
 
     elif statlist == "Wins":
         # Calculate wins per team
@@ -323,7 +324,7 @@ def plot_plotly(teamslist, seasonslist, statlist):
             color_discrete_map=team_colours,
             height=300
         )
-        timeline1.update_traces(opacity=0.5)
+        timeline1.update_traces(opacity=0.8)
 
         timeline1.update_layout(
             xaxis=dict(
@@ -342,8 +343,9 @@ def plot_plotly(teamslist, seasonslist, statlist):
             color_discrete_map=team_colours,
             height=300
         )
-        timeline2.update_traces(opacity=0.5, mode="markers")
+        timeline2.update_traces(opacity=0.8, mode="markers")
 
+    # set fonts and margins for all charts
     for chart in [pie1, pie2, timeline1, timeline2]:
         chart.update_layout(
             font_family = "RHSIV",
@@ -351,6 +353,10 @@ def plot_plotly(teamslist, seasonslist, statlist):
             title_font_family = "RHSIVBold",
             margin=dict(t=40, b=40, l=0, r=0)
         )
+
+    latest = filtered_df["Date"].max()
+
+    timeline2.update_xaxes(type = "date", range = [latest - dt.timedelta(30 * 6), latest]) # start zoomed into last 6 months
 
     return pie1, pie2, timeline1, timeline2
 

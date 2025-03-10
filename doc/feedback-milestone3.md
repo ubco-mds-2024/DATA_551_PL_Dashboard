@@ -42,7 +42,7 @@ That's a fair point, the top line graph, Goals per season, is the aggregated goa
 
 #### Response:
 
-Response here
+Yes, testing that now I see how adding many teams requires the percentages to get listed outside of the piechart and therefore gets cut off by the team names. We will incorporate logic in the next iteration to fix this, perhaps by sipmly moving the Piechart further to the left, giving the legend space.  
 
 ---
 

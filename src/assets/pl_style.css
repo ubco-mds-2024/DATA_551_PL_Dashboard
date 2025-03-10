@@ -51,3 +51,12 @@ body {
     background: #37003c;
     border-radius: 4px;
 }
+
+.pie-container::-webkit-scrollbar {
+    width: 7px;
+}
+
+.pie-container::-webkit-scrollbar-thumb {
+    background: #37003c;
+    border-radius: 4px;
+}

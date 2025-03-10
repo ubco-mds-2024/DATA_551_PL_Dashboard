@@ -159,16 +159,18 @@ app.layout = dbc.Container([
         dbc.Col([
             dcc.Graph(
                 id = "pie1",
-                style = {"height": "125%"}
+                style = {"height": "125%"},
+                className = "pie-container"
             )
         ], md = 4, style = {"max-height": colmaxht}),
         dbc.Col([
             dcc.Graph(
                 id = "pie2",
-                style = {"height": "125%"}
+                style = {"height": "125%"},
+                className = "pie-container"
             )
         ], md = 4, style = {"max-height": colmaxht})
-    ], style = {"height": "45%"}),
+    ], style = {"height": "40%"}),
     dbc.Row([ 
         dcc.Graph(
             id = "timeline1",
@@ -180,7 +182,7 @@ app.layout = dbc.Container([
             id = "timeline2",
             style = {}
         )
-    ], style = {"height": "25%"})
+    ], style = {"height": "30%"})
 ], style={"height": "85vh"})
 
 
@@ -269,7 +271,7 @@ def plot_plotly(teamslist, seasonslist, statlist):
             x="Date",
             y="Team_Goals",
             color="Team",
-            title="Goals Over Time",
+            title="Goals per Match",
             color_discrete_map=team_colours,
             height=300
         )
@@ -341,6 +343,13 @@ def plot_plotly(teamslist, seasonslist, statlist):
             height=300
         )
         timeline2.update_traces(opacity=0.5, mode="markers")
+
+    for chart in [pie1, pie2, timeline1, timeline2]:
+        chart.update_layout(
+            font_family = "RHSIV",
+            font_color = "#37003c",
+            title_font_family = "RHSIVBold"
+        )
 
     return pie1, pie2, timeline1, timeline2
 

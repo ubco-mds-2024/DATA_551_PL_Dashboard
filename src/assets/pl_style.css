@@ -39,8 +39,13 @@ body {
 
 .list-container {
     overflow-y: scroll;
-    max-height: 100%;
+    max-height: 95%;
     max-width: 100%;
+    border-style: inset;
+    border-color: #efe4ef;
+    border-width: 3px;
+    padding: 10px;
+    margin: 5px;
 }
 
 .list-container::-webkit-scrollbar {
@@ -50,4 +55,16 @@ body {
 .list-container::-webkit-scrollbar-thumb {
     background: #37003c;
     border-radius: 4px;
+}
+
+.pie-container::-webkit-scrollbar {
+    width: 7px;
+}
+
+.pie-container::-webkit-scrollbar-thumb {
+    background: #37003c;
+    border-radius: 4px;
+}
+
+.row {
 }

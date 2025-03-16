@@ -1,7 +1,7 @@
 import dash
 from dash import html, dcc
 import dash_bootstrap_components as dbc
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
 import plotly.express as px
 import pandas as pd
 import os
@@ -132,6 +132,24 @@ app = dash.Dash(external_stylesheets = [dbc.themes.BOOTSTRAP, "/assets/pl_style.
 
 colmaxht = "85%"
 
+info_body = html.Div([
+    "The Premier League is the top league for the most popular sport in the world.", html.Br(),html.Br(),
+    "It is also the strongest football league as measured by ",
+    html.A("Opta Power Ratings", href = "https://theanalyst.com/2024/10/strongest-leagues-world-football-opta-power-rankings", target = "_blank"), ".", html.Br(),html.Br(),
+    "It has existed in its current form since 1992, where it split from the English Football League, the oldest association football league in the world (founded in 1888).", html.Br(),html.Br(),
+    "In the ",
+    html.A("2022/2023 season ", href = "https://en.wikipedia.org/wiki/2022%E2%80%9323_Premier_League", target = "_blank"),
+    " the PL had over 15 million people in attendance and earned €7.1 billion revenue, with 1084 goals scored across 380 games.",
+    html.Br(), html.Br(),
+    html.H3("League Format"),
+    "There are 20 teams in the Premier League. Each team plays one home game and one away game against each other team (38 total per team).", html.Br(),html.Br(),
+    "Teams are awarded three points for a win, or one point each for a draw.", html.Br(),html.Br(),
+    "There are no play offs or other tournament format -- the club with the highest number of points at the end of the season wins the league.", html.Br(),html.Br(),
+    "In the event of a points tie at the end of the season, goal differential is used to decide the winner.", html.Br(),html.Br(),
+    "After each season, the bottom three teams on the table are relegated to the next league down the tier structure, the EFL Championship.", html.Br(),html.Br(),
+    "Likewise, the top 3 teams from the EFL Championship join the Premier League for the next season."
+])
+
 app.layout = dbc.Container([
     html.H1("Premier League Dashboard"),
     dbc.Row([
@@ -139,6 +157,14 @@ app.layout = dbc.Container([
                 id = "stat-list",
                 value = "Goals",
                 options = [{"label": stat, "value": stat} for stat in stats]
+            ),
+            dbc.Button("Info", id = "open", n_clicks = 0),
+            dbc.Modal([
+                dbc.ModalHeader(dbc.ModalTitle("Premier League Information")),
+                dbc.ModalBody([info_body]),
+                dbc.ModalFooter(dbc.Button("Close", id = "close", className = "ms-auto", n_clicks = 0))],
+                id = "modal",
+                is_open = False
             ),
             dbc.Col([
                 dcc.Checklist(
@@ -199,6 +225,21 @@ app.layout = dbc.Container([
     Input("seasons-list", "value"),
     Input("stat-list", "value")
 )
+
+def update_figures(teamslist, seasonslist, statlist):
+    return plot_plotly(teamslist, seasonslist, statlist)
+
+@app.callback(
+    Output("modal", "is_open"),
+    [Input("open", "n_clicks"), Input("close", "n_clicks")],
+    [State("modal", "is_open")]
+)
+
+def toggle_modal(n1, n2, is_open):
+    if n1 or n2:
+        return not is_open
+    return is_open
+
 def plot_plotly(teamslist, seasonslist, statlist):
     # Filter data
     filtered_df = df[df["Season"].isin(seasonslist)]

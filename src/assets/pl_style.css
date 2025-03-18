@@ -83,3 +83,13 @@ body {
 .modal-content {
     width: 50vw;
 }
+
+#openm {
+    width: 60px;
+    height: 40px;
+    background-color: #37003c;
+}
+
+#closem {
+    background-color: #37003c;
+}

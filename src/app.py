@@ -123,12 +123,40 @@ team_colours = { # finish these!
     "Blackpool": "#F68712"
 }
 
+club_locations = [
+    {"Club": "Man United", "Lat": 53.4631, "Lon": -2.2913},
+    {"Club": "Man City", "Lat": 53.4831, "Lon": -2.2004},
+    {"Club": "Liverpool", "Lat": 53.4308, "Lon": -2.9608},
+    {"Club": "Everton", "Lat": 53.4388, "Lon": -2.9664},
+    {"Club": "Chelsea", "Lat": 51.4817, "Lon": -0.1909},
+    {"Club": "Arsenal", "Lat": 51.5549, "Lon": -0.1084},
+    {"Club": "Tottenham", "Lat": 51.6043, "Lon": -0.0660},
+    {"Club": "West Ham", "Lat": 51.5386, "Lon": 0.0166},
+    {"Club": "Crystal Palace", "Lat": 51.3983, "Lon": -0.0856},
+    {"Club": "Aston Villa", "Lat": 52.5090, "Lon": -1.8847},
+    {"Club": "Wolves", "Lat": 52.5903, "Lon": -2.1300},
+    {"Club": "Leicester", "Lat": 52.6204, "Lon": -1.1422},
+    {"Club": "Nott'm Forest", "Lat": 52.9399, "Lon": -1.1324},
+    {"Club": "Newcastle", "Lat": 54.9756, "Lon": -1.6215},
+    {"Club": "Leeds", "Lat": 53.7778, "Lon": -1.5721},
+    {"Club": "Sheffield", "Lat": 53.3704, "Lon": -1.4715},
+    {"Club": "Brighton", "Lat": 50.8616, "Lon": -0.0830},
+    {"Club": "Southampton", "Lat": 50.9058, "Lon": -1.3911},
+    {"Club": "Bournemouth", "Lat": 50.7352, "Lon": -1.8382},
+    {"Club": "Brentford", "Lat": 51.4882, "Lon": -0.2886},
+    {"Club": "Burnley", "Lat": 53.7891, "Lon": -2.2302},
+    {"Club": "Fulham", "Lat": 51.4745, "Lon": -0.2216},
+    {"Club": "Sunderland", "Lat": 54.9145, "Lon": -1.3883},
+    {"Club": "Middlesbrough", "Lat": 54.5780, "Lon": -1.2187},
+    {"Club": "Derby", "Lat": 52.9150, "Lon": -1.4478},
+]
+
 stats = ["Goals", "Wins"]
 
 # set up app and layout / frontend
 # ---------------------------------
 
-app = dash.Dash(external_stylesheets = [dbc.themes.BOOTSTRAP, "/assets/pl_style.css"])
+app = dash.Dash(external_stylesheets = [dbc.themes.BOOTSTRAP, "/assets/pl_style.css"], title = "Premier League Dashboard")
 
 colmaxht = "85%"
 
@@ -150,6 +178,11 @@ info_body = html.Div([
     "Likewise, the top 3 teams from the EFL Championship join the Premier League for the next season."
 ])
 
+mapgraph = dcc.Graph(
+            id = "map",
+            style = {"height": "100%"},
+            className = "pie-container")
+
 app.layout = dbc.Container([
     html.H1("Premier League Dashboard"),
     dbc.Row([
@@ -164,6 +197,14 @@ app.layout = dbc.Container([
                 dbc.ModalBody([info_body]),
                 dbc.ModalFooter(dbc.Button("Close", id = "close", className = "ms-auto", n_clicks = 0))],
                 id = "modal",
+                is_open = False
+            ),
+            dbc.Button("Map", id = "openm", n_clicks = 0),
+            dbc.Modal([
+                dbc.ModalHeader(dbc.ModalTitle("Premier League Clubs Map")),
+                dbc.ModalBody([mapgraph]),
+                dbc.ModalFooter(dbc.Button("Close", id = "closem", className = "ms-auto", n_clicks = 0))],
+                id = "modalm",
                 is_open = False
             ),
             dbc.Col([
@@ -221,6 +262,7 @@ app.layout = dbc.Container([
     Output("pie2", "figure"),
     Output("timeline1", "figure"),
     Output("timeline2", "figure"),
+    Output("map", "figure"),
     Input("teams-list", "value"),
     Input("seasons-list", "value"),
     Input("stat-list", "value")
@@ -233,6 +275,12 @@ def update_figures(teamslist, seasonslist, statlist):
     Output("modal", "is_open"),
     [Input("open", "n_clicks"), Input("close", "n_clicks")],
     [State("modal", "is_open")]
+)
+
+@app.callback(
+    Output("modalm", "is_open"),
+    [Input("openm", "n_clicks"), Input("closem", "n_clicks")],
+    [State("modalm", "is_open")]
 )
 
 def toggle_modal(n1, n2, is_open):
@@ -319,6 +367,9 @@ def plot_plotly(teamslist, seasonslist, statlist):
         )
         timeline2.update_traces(opacity=0.8, mode="markers")
 
+        latest = filtered_df["Date"].max()
+        timeline2.update_xaxes(type = "date", range = [latest - dt.timedelta(30 * 6), latest]) # start zoomed into last 6 months
+
     elif statlist == "Wins":
         # Calculate wins per team
         filtered_df = filtered_df.copy()
@@ -395,11 +446,22 @@ def plot_plotly(teamslist, seasonslist, statlist):
             margin=dict(t=40, b=40, l=0, r=0)
         )
 
-    latest = filtered_df["Date"].max()
+    # map
+    mapdf = pd.DataFrame(club_locations)
+    # Create a scatter mapbox
+    map = px.scatter_map(mapdf,
+                            lat="Lat",
+                            lon="Lon",
+                            text="Club",
+                            hover_name="Club",
+                            color="Club",
+                            color_discrete_map=team_colours,
+                            zoom=5,
+                            height=700)
+    map.update_layout(mapbox_style="carto-positron",
+                    mapbox_center={"lat": 53.0, "lon": -1.5})
 
-    timeline2.update_xaxes(type = "date", range = [latest - dt.timedelta(30 * 6), latest]) # start zoomed into last 6 months
-
-    return pie1, pie2, timeline1, timeline2
+    return pie1, pie2, timeline1, timeline2, map
 
 if __name__ == "__main__":
    app.run_server(debug=True)
